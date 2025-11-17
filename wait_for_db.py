@@ -9,7 +9,7 @@ def wait_for_db():
                 dbname="auth_service",
                 user="postgres",
                 password="demo123",
-                host="auth-postgres",
+                host="db",
                 port="5432",
             )
 

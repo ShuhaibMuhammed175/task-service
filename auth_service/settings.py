@@ -22,7 +22,7 @@ env.read_env("/home/shuhaib-muhammad/dtmp/.env")
 
 print("ENV PATH = ", BASE_DIR / ".env")
 
-
+#https://github.com/ShuhaibMuhammed175/task-service.git
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
