@@ -13,6 +13,7 @@ services:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   
 
@@ -31,6 +32,7 @@ services:
     depends_on:
       - db
       - redis
+    restart: unless-stopped
     
     
 
@@ -46,6 +48,7 @@ services:
     depends_on:
       - db
       - auth-service
+    restart: unless-stopped
     
 
 
@@ -56,6 +59,7 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
     - "6380:6379"
+    restart: unless-stopped
     
 volumes:
   pg_data:
