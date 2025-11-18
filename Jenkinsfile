@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        # Environment variables for Docker Compose
+       
         REDIS_PASSWORD = 'demo123'
         REDIS_HOST     = 'redis'
         REDIS_PORT     = '6379'
