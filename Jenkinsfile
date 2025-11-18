@@ -11,28 +11,37 @@ pipeline {
 
         stage('List Files') {
             steps {
-                sh 'ls'
+                sh 'ls -la'
             }
         }
 
-        stage('Docker Compose Up') {
+        stage('Docker Build and Up') {
             steps {
                 sh '''
-                    echo "Starting Docker..."
+                    echo "Stopping old containers..."
                     docker compose down
+
+                    echo "Building and starting new containers..."
                     docker compose up -d --build
                 '''
             }
         }
 
-        
+        stage('Wait for Database') {
+            steps {
+                sh '''
+                    echo "Waiting for PostgreSQL to be ready..."
+                    docker exec auth_service python wait_for_db.py
+                '''
+            }
+        }
 
         stage('Migrate Database') {
             steps {
                 sh '''
-                    echo "Applying migrations"
-                    docker exec auth_service python manage.py makemigrations
-                    docker exec auth_service python manage.py migrate
+                    echo "Applying migrations..."
+                    docker exec auth_service python manage.py makemigrations --noinput
+                    docker exec auth_service python manage.py migrate --noinput
                 '''
             }
         }
@@ -40,7 +49,7 @@ pipeline {
         stage('Create Superuser') {
             steps {
                 sh '''
-                    echo "Creating superuser"
+                    echo "Creating superuser..."
                     docker exec -i auth_service python manage.py shell < create_superuser.py
                 '''
             }
@@ -49,7 +58,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    echo "Running tests"
+                    echo "Running tests..."
                     docker exec auth_service python manage.py test
                 '''
             }
