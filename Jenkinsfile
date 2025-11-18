@@ -1,6 +1,5 @@
 pipeline {
     agent any
-    
 
     stages {
 
@@ -16,7 +15,7 @@ pipeline {
             }
         }
 
-        stage('Docker Compose Down & Up') {
+        stage('Docker Compose Up') {
             steps {
                 sh '''
                     echo "Starting Docker..."
@@ -26,10 +25,22 @@ pipeline {
             }
         }
 
-        stage('Make Migrations & Migrate') {
+        stage('Wait for Redis') {
             steps {
                 sh '''
-                    echo "Make migrations"
+                    echo "Waiting for Redis to be ready..."
+                    until docker exec redis_server redis-cli ping | grep -q PONG; do
+                      sleep 2
+                    done
+                    echo "Redis is ready!"
+                '''
+            }
+        }
+
+        stage('Migrate Database') {
+            steps {
+                sh '''
+                    echo "Applying migrations"
                     docker exec auth_service python manage.py makemigrations
                     docker exec auth_service python manage.py migrate
                 '''
