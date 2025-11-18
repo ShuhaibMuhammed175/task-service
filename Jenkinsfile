@@ -46,7 +46,7 @@ pipeline {
 
         stage('Docker Compose Down') {
             steps {
-                sh 'docker compose down --volumes'
+                sh 'docker compose down'
             }
         }
 
@@ -81,9 +81,5 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            sh 'docker compose down --volumes'
-        }
-    }
+    
 }
