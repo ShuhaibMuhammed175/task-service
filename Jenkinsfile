@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-       
+        # Environment variables for Docker Compose
         REDIS_PASSWORD = 'demo123'
         REDIS_HOST     = 'redis'
         REDIS_PORT     = '6379'
@@ -48,8 +48,23 @@ EOF
                     echo "Starting Docker Compose..."
                     docker compose down
                     docker compose up -d --build
-                    echo "Waiting 10 seconds for containers to start..."
-                    sleep 10
+
+                    echo "Waiting for Postgres and Redis to be ready..."
+                    RETRIES=20
+                    until docker exec postgres_db pg_isready -U ${POSTGRES_USER} || [ $RETRIES -eq 0 ]; do
+                        echo "Waiting for Postgres..."
+                        sleep 3
+                        RETRIES=$((RETRIES-1))
+                    done
+
+                    RETRIES=20
+                    until docker exec redis_server redis-cli -a ${REDIS_PASSWORD} ping | grep PONG || [ $RETRIES -eq 0 ]; do
+                        echo "Waiting for Redis..."
+                        sleep 3
+                        RETRIES=$((RETRIES-1))
+                    done
+
+                    echo "All services are ready."
                 '''
             }
         }
@@ -85,8 +100,14 @@ EOF
 
     post {
         always {
-            echo "Pipeline finished."
-            sh 'docker ps -a'  // Optional: check container status after pipeline
+            echo "Pipeline finished. Showing container status and logs for debugging:"
+            sh '''
+                docker ps -a
+                echo "Logs for auth_service:"
+                docker logs auth_service || echo "No logs available"
+                echo "Logs for celery_worker:"
+                docker logs celery_worker || echo "No logs available"
+            '''
         }
     }
 }
