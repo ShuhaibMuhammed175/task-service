@@ -1,13 +1,13 @@
 pipeline {
     agent any
      environment {
-        # Database / Redis / Django secrets
+       
         REDIS_PASSWORD         = credentials('redis-pass')
         POSTGRES_PASSWORD      = credentials('postgres-pass')
         DB_USER                = credentials('DB_USER')
         SECRET_KEY             = credentials('django-key')
 
-        # Email settings
+      
         EMAIL_BACKEND          = credentials('EMAIL_BACKEND')
         EMAIL_HOST             = credentials('EMAIL_HOST')
         EMAIL_PORT             = credentials('EMAIL_PORT')
@@ -16,11 +16,11 @@ pipeline {
         EMAIL_HOST_PASSWORD    = credentials('EMAIL_HOST_PASSWORD')
         DEFAULT_FROM_EMAIL     = credentials('DEFAULT_FROM_EMAIL')
 
-        # Celery
+       
         CELERY_BROKER_URL      = credentials('CELERY_BROKER_URL')
         CELERY_RESULT_BACKEND  = credentials('CELERY_RESULT_BACKEND')
         
-        # Other environment variables
+       
         LOCATION               = credentials('LOCATION')
         BASE_URL_FP            = credentials('BASE_URL_FP')
     }
