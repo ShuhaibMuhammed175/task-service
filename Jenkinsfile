@@ -9,21 +9,42 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('run docker compose down') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'echo "Mdocker compose down..."'
+                sh 'docker compose down'
             }
         }
 
-        stage('Run Tests') {
+        stage('docker build and up') {
             steps {
-                sh 'python manage.py test'
+                sh 'echo "docker compose build..."'
+                sh 'docker compose up -d --build'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Make Migrations') {
             steps {
-                sh 'docker build -t my-django-app .'
+                sh 'echo "make migrations..."'
+                sh 'docker exec auth_service python manage.py makemigrations'
+            }
+        }
+        stage('Migrate') {
+            steps {
+                sh 'echo "Migrate all ..."'
+                sh 'docker exec auth_service python manage.py migrate'
+            }
+        }
+        stage('create superuser') {
+            steps {
+                sh 'echo "created superuser..."'
+                sh 'docker exec -i auth_service python manage.py shell < create_superuser.py'
+            }
+        }
+        stage('Run Test Cases') {
+            steps {
+                sh 'echo "running test cases..."'
+                sh 'docker exec auth_service python manage.py test'
             }
         }
     }
