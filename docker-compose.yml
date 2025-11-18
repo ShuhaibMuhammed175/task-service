@@ -15,7 +15,6 @@ services:
   redis:
     image: redis:7
     container_name: redis_server
-    command: redis-server --requirepass demo123
     ports:
       - "6380:6379"
 
