@@ -5,7 +5,7 @@ pipeline {
 
         stage('Pull Code') {
             steps {
-                git 'https://github.com/ShuhaibMuhammed175/task-service.git'
+                git branch: 'main', url: 'https://github.com/ShuhaibMuhammed175/task-service.git'
             }
         }
 
