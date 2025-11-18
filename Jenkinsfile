@@ -1,40 +1,14 @@
 pipeline {
     agent any
+
     environment {
-        SECRET_KEY='django-insecure-c3&)i2h%$ghbj%da1cic#gu2hqtyuvb1++fp(4y)7_*3to*j9r'
-        DEBUG='False'
-        DB_NAME='auth_service'
-        DB_USER='postgres'
-        DB_PASSWORD='demo123'
-        DB_HOST='db'
-        DB_PORT='5432'
-
-        BASE_URL_FP='http://127.0.0.1:8000/accounts'
-
-        
-        EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-        EMAIL_HOST='smtp.gmail.com'
-        EMAIL_PORT='587'
-        EMAIL_USE_TLS='True'
-        EMAIL_HOST_USER='mshuhaib176@gmail.com'  
-        EMAIL_HOST_PASSWORD='zdrn wqrb ynzn obvi'
-        DEFAULT_FROM_EMAIL='mshuhaib176@gmail.com'
-
-
-        user='1000/day'     
-        anon='20/day'       
-        user_min='3/minute'
-        user_day='10/day'
-        resend_otp='2/minute'
-        resend_otp_day='10/day'
-
-
-
-
-        CELERY_BROKER_URL='redis://redis_server:6379/0'
-        CELERY_RESULT_BACKEND='redis://redis_server:6379/0'
-
-        LOCATION='redis://redis_server:6379/1'
+        # Default environment variables for Docker Compose
+        REDIS_PASSWORD = 'demo123'
+        REDIS_HOST     = 'redis'
+        REDIS_PORT     = '6379'
+        POSTGRES_DB    = 'auth_service'
+        POSTGRES_USER  = 'postgres'
+        POSTGRES_PASSWORD = 'demo123'
     }
 
     stages {
@@ -51,12 +25,31 @@ pipeline {
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                sh '''
+                    echo "Creating .env file in workspace..."
+                    cat <<EOF > .env
+REDIS_PASSWORD=${REDIS_PASSWORD}
+REDIS_HOST=${REDIS_HOST}
+REDIS_PORT=${REDIS_PORT}
+POSTGRES_DB=${POSTGRES_DB}
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+EOF
+                    echo ".env file created."
+                '''
+            }
+        }
+
         stage('Docker Compose Down & Up') {
             steps {
                 sh '''
-                    echo "Starting Docker..."
+                    echo "Starting Docker Compose..."
                     docker compose down
                     docker compose up -d --build
+                    echo "Waiting 10 seconds for containers to start..."
+                    sleep 10
                 '''
             }
         }
@@ -64,7 +57,7 @@ pipeline {
         stage('Make Migrations & Migrate') {
             steps {
                 sh '''
-                    echo "Make migrations"
+                    echo "Running Django migrations..."
                     docker exec auth_service python manage.py makemigrations
                     docker exec auth_service python manage.py migrate
                 '''
@@ -74,7 +67,7 @@ pipeline {
         stage('Create Superuser') {
             steps {
                 sh '''
-                    echo "Creating superuser"
+                    echo "Creating Django superuser..."
                     docker exec -i auth_service python manage.py shell < create_superuser.py
                 '''
             }
@@ -83,7 +76,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    echo "Running tests"
+                    echo "Running Django tests..."
                     docker exec auth_service python manage.py test
                 '''
             }
@@ -93,6 +86,7 @@ pipeline {
     post {
         always {
             echo "Pipeline finished."
+            sh 'docker ps -a'  // Optional: check container status after pipeline
         }
     }
 }
