@@ -27,6 +27,13 @@ pipeline {
 
     stages {
 
+      
+        stage('Test') {
+            steps {
+                sh 'echo $DEFAULT_FROM_EMAIL'
+            }
+        }
+
         stage('Pull Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/ShuhaibMuhammed175/task-service.git'
