@@ -8,25 +8,15 @@ services:
       POSTGRES_DB: auth_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: demo123
+    
     ports:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          memory: 512m
+    restart: unless-stopped
 
-  redis:
-    image: redis:7
-    container_name: redis_server
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6380:6379"
-    deploy:
-      resources:
-        limits:
-          memory: 256m
+  
+
 
   auth-service:
     build:
@@ -42,10 +32,9 @@ services:
     depends_on:
       - db
       - redis
-    deploy:
-      resources:
-        limits:
-          memory: 1024m
+    restart: unless-stopped
+    
+    
 
   celery_worker:
     build:
@@ -59,10 +48,18 @@ services:
     depends_on:
       - db
       - auth-service
-    deploy:
-      resources:
-        limits:
-          memory: 512m
+    restart: unless-stopped
+    
 
+
+  redis:
+    image: redis:7
+    container_name: redis_server
+    
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+    - "6380:6379"
+   
+    
 volumes:
   pg_data:
