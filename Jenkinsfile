@@ -6,6 +6,7 @@ pipeline {
         POSTGRES_PASSWORD      = credentials('postgres-pass')
         DB_USER                = credentials('DB_USER')
         SECRET_KEY             = credentials('django-key')
+        DB_NAME                = credentials('DB_NAME')
 
         EMAIL_BACKEND          = credentials('EMAIL_BACKEND')
         EMAIL_HOST             = credentials('EMAIL_HOST')
