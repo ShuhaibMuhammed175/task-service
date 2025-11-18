@@ -2,13 +2,24 @@ pipeline {
     agent any
 
     environment {
-        // Make sure your credentials are set in Jenkins
-        REDIS_PASSWORD = credentials('REDIS_PASSWORD')
-        POSTGRES_PASSWORD = credentials('POSTGRES_PASSWORD')
-        DB_USER = credentials('DB_USER')
-        SECRET_KEY = credentials('SECRET_KEY')
-        EMAIL_HOST_PASSWORD = credentials('EMAIL_HOST_PASSWORD')
-        DEFAULT_FROM_EMAIL = credentials('DEFAULT_FROM_EMAIL')
+        REDIS_PASSWORD         = credentials('redis-pass')
+        POSTGRES_PASSWORD      = credentials('postgres-pass')
+        DB_USER                = credentials('DB_USER')
+        SECRET_KEY             = credentials('django-key')
+
+        EMAIL_BACKEND          = credentials('EMAIL_BACKEND')
+        EMAIL_HOST             = credentials('EMAIL_HOST')
+        EMAIL_PORT             = credentials('EMAIL_PORT')
+        EMAIL_USE_TLS          = credentials('EMAIL_USE_TLS')
+        EMAIL_HOST_USER        = credentials('EMAIL_HOST_USER')
+        EMAIL_HOST_PASSWORD    = credentials('EMAIL_HOST_PASSWORD')
+        DEFAULT_FROM_EMAIL     = credentials('DEFAULT_FROM_EMAIL')
+
+        CELERY_BROKER_URL      = credentials('CELERY_BROKER_URL')
+        CELERY_RESULT_BACKEND  = credentials('CELERY_RESULT_BACKEND')
+
+        LOCATION               = credentials('LOCATION')
+        BASE_URL_FP            = credentials('BASE_URL_FP')
         DEBUG = 'True'
     }
 
