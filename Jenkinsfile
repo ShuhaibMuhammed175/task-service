@@ -6,6 +6,7 @@ pipeline {
         POSTGRES_PASSWORD      = credentials('postgres-pass')
         DB_USER                = credentials('DB_USER')
         SECRET_KEY             = credentials('django-key')
+        DEBUG                  = credentials('DEBUG')
 
         EMAIL_BACKEND          = credentials('EMAIL_BACKEND')
         EMAIL_HOST             = credentials('EMAIL_HOST')
@@ -37,6 +38,7 @@ pipeline {
                 echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
                 echo "DB_USER=$DB_USER" >> .env
                 echo "SECRET_KEY=$SECRET_KEY" >> .env
+                echo "DEBUG=$DEBUG" >> .env
 
                 echo "EMAIL_BACKEND=$EMAIL_BACKEND" >> .env
                 echo "EMAIL_HOST=$EMAIL_HOST" >> .env
