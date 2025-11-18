@@ -13,8 +13,7 @@ services:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
+    
   
 
 
@@ -32,7 +31,7 @@ services:
     depends_on:
       - db
       - redis
-    restart: unless-stopped
+    
     
     
 
@@ -48,7 +47,7 @@ services:
     depends_on:
       - db
       - auth-service
-    restart: unless-stopped
+    
     
 
 
