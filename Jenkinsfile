@@ -3,9 +3,23 @@ pipeline {
 
     stages {
 
+        
+
+
         stage('Pull Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/ShuhaibMuhammed175/task-service.git'
+            }
+        }
+
+
+        stage('Create ENV File') {
+            steps {
+                withCredentials([string(credentialsId: 'MY_ENV_FILE', variable: 'ENV_DATA')]) {
+                    sh '''
+                        echo "$ENV_DATA" > .env
+                    '''
+                }
             }
         }
 
