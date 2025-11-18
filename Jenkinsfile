@@ -15,9 +15,10 @@ pipeline {
 
         stage('Create ENV File') {
             steps {
-                withCredentials([string(credentialsId: 'MY_ENV_FILE', variable: 'ENV_DATA')]) {
-                    sh 'echo "$ENV_DATA" > .env'
-                }
+                withCredentials([file(credentialsId: 'MY_ENV_FILE', variable: 'ENV_PATH')]) {
+                    sh 'cp "$ENV_PATH" .env'
+                    }
+
 
             }
         }
