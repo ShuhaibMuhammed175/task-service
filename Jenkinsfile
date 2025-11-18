@@ -20,7 +20,7 @@ pipeline {
 
         LOCATION               = credentials('LOCATION')
         BASE_URL_FP            = credentials('BASE_URL_FP')
-        DEBUG = 'True'
+        DEBUG                  = 'True'
     }
 
     stages {
@@ -33,13 +33,22 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 sh '''
-                    echo "REDIS_PASSWORD=${REDIS_PASSWORD}" > .env
-                    echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
-                    echo "DB_USER=${DB_USER}" >> .env
-                    echo "SECRET_KEY=${SECRET_KEY}" >> .env
-                    echo "DEBUG=${DEBUG}" >> .env
-                    echo "EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}" >> .env
-                    echo "DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}" >> .env
+                    printf "REDIS_PASSWORD='%s'\\n" "$REDIS_PASSWORD" > .env
+                    printf "POSTGRES_PASSWORD='%s'\\n" "$POSTGRES_PASSWORD" >> .env
+                    printf "DB_USER='%s'\\n" "$DB_USER" >> .env
+                    printf "SECRET_KEY='%s'\\n" "$SECRET_KEY" >> .env
+                    printf "DEBUG='%s'\\n" "$DEBUG" >> .env
+                    printf "EMAIL_HOST_PASSWORD='%s'\\n" "$EMAIL_HOST_PASSWORD" >> .env
+                    printf "DEFAULT_FROM_EMAIL='%s'\\n" "$DEFAULT_FROM_EMAIL" >> .env
+                    printf "EMAIL_BACKEND='%s'\\n" "$EMAIL_BACKEND" >> .env
+                    printf "EMAIL_HOST='%s'\\n" "$EMAIL_HOST" >> .env
+                    printf "EMAIL_PORT='%s'\\n" "$EMAIL_PORT" >> .env
+                    printf "EMAIL_USE_TLS='%s'\\n" "$EMAIL_USE_TLS" >> .env
+                    printf "EMAIL_HOST_USER='%s'\\n" "$EMAIL_HOST_USER" >> .env
+                    printf "CELERY_BROKER_URL='%s'\\n" "$CELERY_BROKER_URL" >> .env
+                    printf "CELERY_RESULT_BACKEND='%s'\\n" "$CELERY_RESULT_BACKEND" >> .env
+                    printf "LOCATION='%s'\\n" "$LOCATION" >> .env
+                    printf "BASE_URL_FP='%s'\\n" "$BASE_URL_FP" >> .env
                 '''
             }
         }
@@ -53,6 +62,17 @@ pipeline {
         stage('Docker Compose Build & Up') {
             steps {
                 sh 'docker compose up -d --build'
+            }
+        }
+
+        stage('Wait for Django') {
+            steps {
+                sh '''
+                    echo "Waiting for auth_service to be ready..."
+                    until docker exec auth_service python manage.py showmigrations; do
+                        sleep 5
+                    done
+                '''
             }
         }
 
@@ -80,6 +100,4 @@ pipeline {
             }
         }
     }
-
-    
 }
