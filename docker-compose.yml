@@ -13,7 +13,7 @@ services:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    
+
   
 
 
@@ -33,7 +33,6 @@ services:
       - redis
     
     
-    
 
   celery_worker:
     build:
@@ -48,7 +47,6 @@ services:
       - db
       - auth-service
     
-    
 
 
   redis:
@@ -58,7 +56,6 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
     - "6380:6379"
-   
     
 volumes:
   pg_data:
