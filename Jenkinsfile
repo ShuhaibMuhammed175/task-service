@@ -25,17 +25,7 @@ pipeline {
             }
         }
 
-        stage('Wait for Redis') {
-            steps {
-                sh '''
-                    echo "Waiting for Redis to be ready..."
-                    until docker exec redis_server redis-cli ping | grep -q PONG; do
-                      sleep 2
-                    done
-                    echo "Redis is ready!"
-                '''
-            }
-        }
+        
 
         stage('Migrate Database') {
             steps {
