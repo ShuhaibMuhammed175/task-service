@@ -1,6 +1,5 @@
 pipeline {
     agent any
-    
 
     stages {
 
@@ -10,43 +9,54 @@ pipeline {
             }
         }
 
-        stage('run docker compose down') {
+        stage('List Files') {
             steps {
-                sh 'echo "Mdocker compose down..."'
-                sh 'docker compose down'
+                sh 'ls'
             }
         }
 
-        stage('docker build and up') {
+        stage('Docker Compose Down & Up') {
             steps {
-                sh 'echo "docker compose build..."'
-                sh 'docker compose up -d --build'
+                sh '''
+                    echo "Starting Docker..."
+                    docker compose down
+                    docker compose up -d --build
+                '''
             }
         }
 
-        stage('Make Migrations') {
+        stage('Make Migrations & Migrate') {
             steps {
-                sh 'echo "make migrations..."'
-                sh 'docker exec auth_service python manage.py makemigrations'
+                sh '''
+                    echo "Make migrations"
+                    docker exec auth_service python manage.py makemigrations
+                    docker exec auth_service python manage.py migrate
+                '''
             }
         }
-        stage('Migrate') {
+
+        stage('Create Superuser') {
             steps {
-                sh 'echo "Migrate all ..."'
-                sh 'docker exec auth_service python manage.py migrate'
+                sh '''
+                    echo "Creating superuser"
+                    docker exec -i auth_service python manage.py shell < create_superuser.py
+                '''
             }
         }
-        stage('create superuser') {
+
+        stage('Run Tests') {
             steps {
-                sh 'echo "created superuser..."'
-                sh 'docker exec -i auth_service python manage.py shell < create_superuser.py'
+                sh '''
+                    echo "Running tests"
+                    docker exec auth_service python manage.py test
+                '''
             }
         }
-        stage('Run Test Cases') {
-            steps {
-                sh 'echo "running test cases..."'
-                sh 'docker exec auth_service python manage.py test'
-            }
+    }
+
+    post {
+        always {
+            echo "Pipeline finished."
         }
     }
 }
